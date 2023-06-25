@@ -8,4 +8,3 @@ from auth.schemas import User
 router = APIRouter()
 
 
-
