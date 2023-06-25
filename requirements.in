@@ -1,0 +1,6 @@
+FastAPI
+SQLAlchemy
+loguru
+psycopg2
+alembic
+uvicorn
