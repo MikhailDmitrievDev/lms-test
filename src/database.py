@@ -8,13 +8,20 @@ from var_env import POSTGRES_USER, \
     POSTGRES_HOST, \
     POSTGRES_PASSWORD
 
-SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{POSTGRES_USER}:" \
+                          f"{POSTGRES_PASSWORD}@" \
+                          f"{POSTGRES_HOST}:" \
+                          f"{POSTGRES_PORT}/" \
+                          f"{POSTGRES_DB}"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
+    SQLALCHEMY_DATABASE_URL, connect_args={}, future=True
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False,
+                            autoflush=False,
+                            bind=engine,
+                            future=True)
 Base = declarative_base()
 
 
