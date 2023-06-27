@@ -6,8 +6,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy_utils import URLType
 
 
-from auth.models import User
-from database import Base
+from src.auth.models import User
+from src.database import Base
 from mixins import Timestamp
 
 
@@ -17,32 +17,32 @@ class ContentType(enum.Enum):
     assignment = 3
 
 
-class Course(Timestamp, Base):
+class Course(Base, Timestamp):
     __tablename__ = "courses"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
-    user_id = Column(Integer, ForeignKey("user.id", nullable=False))
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     created_by = relationship(User)
     sections = relationship("Section", back_populates="course", uselist=False)
     student_course = relationship("StudentCourse", back_populates="course")
 
 
-class Section(Timestamp, Base):
+class Section(Base, Timestamp):
     __tablename__ = "sections"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
     description = Column(Text, nullable=True)
-    course_id = Column(Integer, ForeignKey("course_id"), nullable=False)
+    course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
 
     course = relationship("Course", back_populates="sections")
     content_blocks = relationship("ContentBlock", back_populates="section")
 
 
-class ContentBlock(Timestamp, Base):
+class ContentBlock(Base, Timestamp):
     __tablename__ = "content_blocks"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -51,10 +51,13 @@ class ContentBlock(Timestamp, Base):
     type = Column(Enum(ContentType))
     url = Column(URLType, nullable=True)
     content = Column(Text, nullable=True)
-    section_id = Column(Integer, ForeignKey("section.id"), nullable=False)
+    section_id = Column(Integer, ForeignKey("sections.id"), nullable=False)
+
+    section = relationship("Section", back_populates="content_blocks")
+    completed_content_block = relationship("CompletedContentBlock", back_populates="content_block")
 
 
-class StudentCourse(Timestamp, Base):
+class StudentCourse(Base, Timestamp):
     """
     Students can be assigned to courses.
     """
@@ -65,11 +68,11 @@ class StudentCourse(Timestamp, Base):
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
     completed = Column(Boolean, default=False)
 
-    student = relationship(User, back_populates="student_courses")
+    student = relationship("User", back_populates="student_courses")
     course = relationship("Course", back_populates="student_courses")
 
 
-class CompletedContentBlock(Timestamp, Base):
+class CompletedContentBlock(Base, Timestamp):
     """
     This shows when a student has completed a content block.
     """
